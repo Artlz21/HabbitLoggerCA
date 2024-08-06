@@ -1,19 +1,8 @@
-﻿using System.Data.SQLite;
-
-string connectionString = @"Data Source=habbit-logger.db";
-
-using (var connection = new SQLiteConnection(connectionString)) {
-    connection.Open();
-    var tableCmd = connection.CreateCommand();
-
-    tableCmd.CommandText = 
-        @"CREATE TABLE IF NOT EXISTS habbit-logger(
-            Id INTEGER PRIMARY KEY AUTOINCREMENT,
-            Habbit TEXT,
-            Count INTEGER
-            )";
-
-    tableCmd.ExecuteNonQuery();
-
-    connection.Close();
-}
+﻿namespace HabitLoggerAPP {
+    public class Program {
+        public static void Main(string[] args){
+            string connectionString = @"Data Source=habbit-logger.db";
+            HabitDatabase newdb = new HabitDatabase(connectionString);
+        }
+    }
+} 
