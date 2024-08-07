@@ -1,10 +1,11 @@
-namespace HabitLoggerAPP{
+namespace HabitLoggerAPP {
     public class Menu {
         private string userInput = "";
         private int menuSelection;
         private bool exitApp = false;
-        private string connectionString;
-        private HabitDatabase habitDB;
+        private readonly string connectionString;
+        private readonly HabitDatabase habitDB;
+
         public Menu(string cs) {
             connectionString = cs;
             habitDB = new HabitDatabase(connectionString);
@@ -12,6 +13,7 @@ namespace HabitLoggerAPP{
 
         public void MainMenu () {
             while (!exitApp) {
+                Console.Clear();
                 Console.WriteLine ("Main Menu\n");
                 Console.WriteLine ("Select an option from below.");
                 Console.WriteLine ("".PadLeft(25, '-'));
@@ -23,7 +25,7 @@ namespace HabitLoggerAPP{
                 Console.WriteLine ("".PadLeft (25, '-'));
 
                 try {
-                    userInput = Console.ReadLine();
+                    userInput = Console.ReadLine() ?? "";
                     if (int.TryParse(userInput, out menuSelection)) {
                         switch (menuSelection) {
                             case 0:
@@ -31,20 +33,19 @@ namespace HabitLoggerAPP{
                                 exitApp = true;
                                 break;
                             case 1:
-                                Console.Clear();
-                                View();
+                                ExecuteAction(View);
                                 break;
                             case 2:
-                                Console.Clear();
-                                Add();
+                                ExecuteAction(Add);
                                 break;
                             case 3:
-                                Console.Clear();
-                                Update();
+                                ExecuteAction(Update);
                                 break;
                             case 4:
-                                Console.Clear();
-                                Delete();
+                                ExecuteAction(Delete);
+                                break;
+                            default:
+                                Console.WriteLine ("Please enter a valid selection");
                                 break;
                         }
                     }
@@ -55,38 +56,93 @@ namespace HabitLoggerAPP{
             }
         }
 
+        private void ExecuteAction (Action action) {
+            Console.Clear();
+            Console.WriteLine("".PadLeft(25, '-'));
+            action();
+            Console.WriteLine("".PadLeft(25, '-'));
+            Console.WriteLine("Press enter to continue");
+            Console.ReadLine();
+        }
+
         private void View () {
             Console.WriteLine("Here are your currently logged habits.\n");
-            Console.WriteLine("".PadLeft(25, '-'));
             habitDB.ShowUserHabits();
         }
 
         private void Add () {
-            Console.WriteLine("What Habit would you like to add?");
-            Console.WriteLine("".PadLeft(25, '-'));
-            Console.Write("Enter a habit: ");
-            string habit = Console.ReadLine();
-            Console.Write("How many times have you done this habit: ");
-            int count = Convert.ToInt16(Console.ReadLine());
-            habitDB.AddHabit(habit, count);
+            bool check = false;
+            try{
+                while (!check)
+                {
+                    Console.Write("Enter a habit to add: ");
+                    string habit = Console.ReadLine() ?? "";
+                    if (string.IsNullOrEmpty(habit))
+                    {
+                        Console.WriteLine("Please enter a valid input");
+                        continue;
+                    }
+                    Console.Write("How many times have you done this habit: ");
+                    string userCount = Console.ReadLine() ?? "";
+                    if (int.TryParse(userCount, out int count))
+                    {
+                        habitDB.AddHabit(habit, count);
+                        check = true;
+                        break;
+                    }
+                    Console.WriteLine("Please enter a valid input");
+                }
+            }
+            catch (Exception ex) {
+                Console.WriteLine ($"Invalid input entered {ex.Message}");
+            }
         }
 
         private void Update () {
-            Console.WriteLine("What Habit would you like to update?");
-            Console.WriteLine("".PadLeft(25, '-'));
-            Console.Write("Enter a habit: ");
-            string habit = Console.ReadLine();
-            Console.Write("How many times have you done this habit: ");
-            int count = Convert.ToInt16(Console.ReadLine());
-            habitDB.UpdateHabit(habit, count);
+            bool check = false;
+            try {
+                while (!check)
+                {
+                    Console.Write("Enter a habit to update: ");
+                    string habit = Console.ReadLine() ?? "";
+                    if (string.IsNullOrEmpty(habit))
+                    {
+                        Console.WriteLine("Please enter a valid input");
+                        continue;
+                    }
+                    Console.Write("How many times have you done this habit: ");
+                    string userCount = Console.ReadLine() ?? "";
+                    if (int.TryParse(userCount, out int count))
+                    {
+                        habitDB.UpdateHabit(habit, count);
+                        check = true;
+                        break;
+                    }
+                    Console.WriteLine("Please enter a valid input");
+                }
+            }
+            catch (Exception ex) {
+                Console.WriteLine ($"Invalid input entered {ex.Message}");
+            }
         }
 
         private void Delete () {
-            Console.WriteLine("What Habit would you like to Delete?");
-            Console.WriteLine("".PadLeft(25, '-'));
-            Console.Write("Enter a habit: ");
-            string habit = Console.ReadLine();
-            habitDB.DeleteHabit(habit);
+            bool check = false;
+            try {
+                while (!check) {
+                    Console.Write("Enter a habit to delete: ");
+                    string habit = Console.ReadLine() ?? "";
+                    if (string.IsNullOrEmpty(habit)) {
+                        Console.WriteLine("Please enter a valid input");
+                        continue;
+                    }
+                    habitDB.DeleteHabit(habit);
+                    check = true;
+                }
+            }
+            catch (Exception ex) {
+                Console.WriteLine ($"Invalid input entered {ex.Message}");
+            }
         }
     }
 }
